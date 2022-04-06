@@ -30,6 +30,9 @@
  ------------------------------------------------------------------------------*/
 void setup(void);
 void R_TMR0(void);
+void obtener_valor(void);
+void set_display(void);
+void mostrar_valor(void);
 
 /*------------------------------------------------------------------------------
  * CONSTANTES 
@@ -42,8 +45,23 @@ void R_TMR0(void);
 /*------------------------------------------------------------------------------
  * VARIABLES 
  ------------------------------------------------------------------------------*/
- uint8_t cont1 = 0; // Declarada e inicializada
- uint8_t cont2 = 0; // Declarada e inicializada
+ uint8_t cont1 = 0;     // Declarada e inicializada
+ uint8_t cont2 = 0;     // Declarada e inicializada
+ uint8_t valores[3];    // Declarada
+ uint8_t display[3];    // Declarada
+ uint8_t valor;         // Declarada
+ uint8_t i;             // Declarada
+ uint8_t banderas = 0;  // Declarada e inicializada
+ uint8_t tabla[10] = {0b11101101,
+                      0b01100000,
+                      0b11001110,
+                      0b11101010,
+                      0b01100011,
+                      0b10101011,
+                      0b10101111,
+                      0b11100000,
+                      0b11101111,
+                      0b11100011};         
  
 
  void __interrupt() isr (void){
@@ -59,7 +77,7 @@ void R_TMR0(void);
     }
     
     if(INTCONbits.T0IF){
-        cont2++;
+        mostrar_valor();
         R_TMR0();                 // Reset de TMR0
     }
     
@@ -71,12 +89,62 @@ void R_TMR0(void);
     while(1){
         PORTA = cont1;
         PORTC = cont2;
+        valor = cont1;
+        obtener_valor();
+        set_display();
     }
     return;
  }
  
  void R_TMR0(void){
-     TMR0 = 158;
+     TMR0 = 6;                // Delay de 0.5 mS
      INTCONbits.T0IF = 0;
      return;
+ }
+ 
+ void obtener_valor(void){
+     valores[0] = valor/100;                            // Obtener centenas del valor
+     valores[1] = (valor-valores[0]*100)/10;            // Obtener decenas del valor
+     valores[2] = valor-valores[0]*100-valores[1]*10;   // Obtener unidades del valor
+ }
+ 
+ void set_display(void){
+     i = valores[0];
+     display[0] = tabla[i];      // Display con centenas
+     i = valores[1];
+     display[1]= tabla[i];       // Display con decenas
+     i = valores[2];
+     display[2] = tabla[i];      // Display con unidades
+ }
+ 
+ void mostrar_valor(void){
+     //PORTD = 0;
+     switch (banderas){
+         case 0:
+             PORTC = display[0];
+             PORTDbits.RD0 = 1;
+             PORTDbits.RD1 = 0;
+             PORTDbits.RD2 = 0;
+             banderas = 1;
+             return;
+         case 1:
+             PORTC = display[1];
+             PORTDbits.RD0 = 0;
+             PORTDbits.RD1 = 1;
+             PORTDbits.RD2 = 0;
+             banderas = 2;
+             return;
+         case 2: 
+             PORTC = display [2];
+             PORTDbits.RD0 = 0;
+             PORTDbits.RD1 = 0;
+             PORTDbits.RD2 = 1;
+             banderas = 0;
+             return;
+         default: 
+             PORTC = 0;
+             banderas = 0;
+             return;
+            
+     }
  }

@@ -15,10 +15,12 @@ void setup(void){
     PORTA = 0;                  // Limpiamos PORTA
     TRISC = 0x00;               // PORTC como salida
     PORTC = 0;                  // Limpiamos PORTC
+    TRISD = 0x00;               // PORTD como salida
+    PORTD = 0;                  // Limpiamos PORTD
     TRISB = 3;                  // RB0 y RB1 como entradas
     PORTB = 0;                  // Limpiamos PORTB
     
-    OSCCONbits.IRCF = 0b0100;   // 1MHz
+    OSCCONbits.IRCF = 0b0110;   // 4MHz
     OSCCONbits.SCS = 1;         // Oscilador interno
     
     OPTION_REGbits.nRBPU = 0;   // Habilitamos resistencias de pull-up del PORTB
@@ -36,9 +38,9 @@ void setup(void){
     OPTION_REGbits.T0CS = 0;    // TIMR0 como temporizador
     OPTION_REGbits.T0SE = 0;  
     OPTION_REGbits.PSA = 0;     // Prescaler asignado a TMR0
-    OPTION_REGbits.PS2 = 1;     // Prescaler = 256
-    OPTION_REGbits.PS1 = 1;
-    OPTION_REGbits.PS0 = 1;
-    TMR0 = 158;                 // Delay de 100 mS
+    OPTION_REGbits.PS2 = 0;     // Prescaler = 2
+    OPTION_REGbits.PS1 = 0;
+    OPTION_REGbits.PS0 = 0;
+    TMR0 = 6;                 // Delay de 0.5 mS
 }
 
